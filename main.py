@@ -2,14 +2,16 @@
 
 
 import curses
+
 import terminalWindowUtils
 import terminalDraw
+import terminalGame
+import terminalConstants
 
-GAME_WINDOW_HEIGHT = 24
-GAME_WINDOW_WIDTH = 80
 
 RESOURCE_PATHS = {
-    'txt_terminal': 'gameResources/txt_terminal'
+    'txt_terminal': 'gameResources/txt_terminal',
+    'level_1': 'gameResources/levels/lvl_1'
 }
 
 
@@ -17,20 +19,28 @@ RESOURCES = {key: open(RESOURCE_PATHS[key]).read() for key in RESOURCE_PATHS}
 
 
 def main(screen):
+    # clear screen
     screen.clear()
 
+    # set up game window
     gameWindow = curses.newwin(
-        GAME_WINDOW_HEIGHT,
-        GAME_WINDOW_WIDTH,
-        int(curses.LINES / 2 - GAME_WINDOW_HEIGHT / 2),
-        int(curses.COLS / 2 - GAME_WINDOW_WIDTH / 2)
+        terminalConstants.GAME_WINDOW_HEIGHT,
+        terminalConstants.GAME_WINDOW_WIDTH,
+        int(curses.LINES / 2 - terminalConstants.GAME_WINDOW_HEIGHT / 2),
+        int(curses.COLS / 2 - terminalConstants.GAME_WINDOW_WIDTH / 2)
     )
 
-    terminalWindowUtils.addBorder(gameWindow)
-    terminalDraw.drawText(gameWindow, RESOURCES['txt_terminal'], [0.50, 0.20])
+    # make getch non blocking
+    gameWindow.nodelay(True)
 
-    gameWindow.refresh()
-    gameWindow.getkey()
+    # add border
+    terminalWindowUtils.addBorder(gameWindow)
+
+    level_1 = terminalGame.level(RESOURCES['level_1'])
+    terminalDraw.drawLevel(gameWindow, level_1)
+
+    # game loop
+    terminalGame.gameLoop(gameWindow, level_1)
 
 
 curses.wrapper(main)
