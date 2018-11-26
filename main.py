@@ -24,11 +24,11 @@ def main(screen):
 
     # set up game window
     gameWindow = curses.newwin(
-        terminalConstants.GAME_WINDOW_HEIGHT,
-        terminalConstants.GAME_WINDOW_WIDTH,
-        int(curses.LINES / 2 - terminalConstants.GAME_WINDOW_HEIGHT / 2),
-        int(curses.COLS / 2 - terminalConstants.GAME_WINDOW_WIDTH / 2)
-    )
+            terminalConstants.GAME_WINDOW_HEIGHT,
+            terminalConstants.GAME_WINDOW_WIDTH,
+            int(curses.LINES / 2 - terminalConstants.GAME_WINDOW_HEIGHT / 2),
+            int(curses.COLS / 2 - terminalConstants.GAME_WINDOW_WIDTH / 2)
+        )
 
     # make getch non blocking
     gameWindow.nodelay(True)

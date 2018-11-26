@@ -46,26 +46,44 @@ def gameLoop(gameWindow, level):
          gameWindow -- stdscr object
     """
     secondsPerFrame = 1/terminalConstants.GAME_FPS
+    startTiming = secondsPerFrame
+    frameCount = 0
     while True:
         # process input
-
         # if c == ord('w'):
         # if c == ord('s'):
-
         c = gameWindow.getch()
         if c == ord('a'):
             level.scroll(scrollRight=False)
+            level.scroll(scrollRight=False)
         if c == ord('d'):
+            level.scroll(scrollRight=True)
             level.scroll(scrollRight=True)
         elif c == ord('q'):
             break
-
         # update
         #   advance game simulation one step
-
         # render
         #   draw game
+
         terminalDraw.drawLevel(gameWindow, level)
+
+        # calculate and show FPS
+        if terminalConstants.GAME_SHOW_FPS:
+            if frameCount % terminalConstants.GAME_UPDATE_FPS_CHECK == 0:
+                FPS = int(1 / (time.time() - startTiming))
+            startTiming = time.time()
+
+            terminalDraw.drawText(
+                    gameWindow,
+                    'fps: ' + str(FPS),
+                    percentages=None,
+                    startCoords=[
+                        70,
+                        1])
+
         gameWindow.refresh()
+
+        frameCount = frameCount + 1
 
         time.sleep(secondsPerFrame)
