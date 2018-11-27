@@ -12,26 +12,90 @@ class level:
     """
 
     def __init__(self, rawLevel):
-        self.raw = rawLevel
-        self.level = self.raw.splitlines()
-        self.index = [0, 77]
+        # all level processing is through self.level
+        self.level = rawLevel.splitlines()
+
+        # holds index bounds of visible part of level
+        self.visibleIndexes = {
+            'leftRightIndex': [0, 77],
+            'topBottomIndex': [len(self.level) - 21, len(self.level)]
+        }
+
+        # using self.visibleIndexes, calculate visible parts of level
+        # and store in self.visibleLevel and self.visibleLevelRaw
         self._setVisible()
-        self.maxIndex = len(self.level[0])
+
+        # maximum bounds whole level
+        self.maxRightIndex = len(self.level[0])
+        self.maxBottomIndex = len(self.level)
 
     def _setVisible(self):
-        """ setVisible - sets visible part of level """
-        self.visibleLevel = [line[self.index[0]: self.index[1]]
-                             for line in self.level]
+        """ _setVisible - sets visible part of level """
+        # list comprehension to quickly grap visible level using indexes
+        self.visibleLevel = [
+            line[
+                self.visibleIndexes['leftRightIndex'][0]:
+                self.visibleIndexes['leftRightIndex'][1]
+            ]
+            for line in
+            self.level[
+                    self.visibleIndexes['topBottomIndex'][0]:
+                    self.visibleIndexes['topBottomIndex'][1]
+                ]
+        ]
+        # used for displaying level
         self.visibleLevelRaw = '\n'.join(self.visibleLevel)
 
-    def scroll(self, scrollRight=True):
-        """ scroll - scrolls one column to the left or right"""
-        if scrollRight:
-            if not self.index[1] == self.maxIndex:
-                self.index = [self.index[0] + 1, self.index[1] + 1]
+    def scroll(self, scrollRight=True, scrollTop=None):
+        """
+        scroll - scrolls the visible area of the level, either left, right, up
+        or down.
+
+        arguments:
+            scrollRight -- a boolean value indicating whether to scroll right.
+            If set to false will scroll left. if scrolling top and bottom is
+            required, set to None.
+            scrollTop -- a boolean value indicating whether to scroll top.
+            If set to false will scroll bottom. if scrolling left and right is
+            required, set to None.
+        """
+        if scrollRight is not None:
+            if scrollRight:
+                # if level not scrolled to rightmost index already, scroll to
+                # right
+                if not self.visibleIndexes['leftRightIndex'][1] == \
+                        self.maxRightIndex:
+                    self.visibleIndexes['leftRightIndex'] = [
+                        self.visibleIndexes['leftRightIndex'][0] + 1,
+                        self.visibleIndexes['leftRightIndex'][1] + 1
+                    ]
+            else:
+                # if level not scrolled to leftmost index already, scroll to
+                # left
+                if not self.visibleIndexes['leftRightIndex'][0] == 0:
+                    self.visibleIndexes['leftRightIndex'] = [
+                        self.visibleIndexes['leftRightIndex'][0] - 1,
+                        self.visibleIndexes['leftRightIndex'][1] - 1
+                    ]
         else:
-            if not self.index[0] == 0:
-                self.index = [self.index[0] - 1, self.index[1] - 1]
+            if scrollTop:
+                # if level not scrolled to topmost index already, scroll to top
+                if not self.visibleIndexes['topBottomIndex'][0] == 0:
+                    self.visibleIndexes['topBottomIndex'] = [
+                        self.visibleIndexes['topBottomIndex'][0] - 1,
+                        self.visibleIndexes['topBottomIndex'][1] - 1
+                    ]
+            else:
+                # if level not scrolled to topmost index already, scroll to
+                # bottom
+                if not self.visibleIndexes['topBottomIndex'][1] == \
+                        self.maxBottomIndex:
+                    self.visibleIndexes['topBottomIndex'] = [
+                        self.visibleIndexes['topBottomIndex'][0] + 1,
+                        self.visibleIndexes['topBottomIndex'][1] + 1
+                    ]
+
+        # set visible part of level using new indexes
         self._setVisible()
 
 
@@ -50,15 +114,17 @@ def gameLoop(gameWindow, level):
     frameCount = 0
     while True:
         # process input
-        # if c == ord('w'):
-        # if c == ord('s'):
         c = gameWindow.getch()
+        if c == ord('w'):
+            level.scroll(scrollRight=None, scrollTop=True)
+        if c == ord('s'):
+            level.scroll(scrollRight=None, scrollTop=False)
         if c == ord('a'):
-            level.scroll(scrollRight=False)
             level.scroll(scrollRight=False)
         if c == ord('d'):
             level.scroll(scrollRight=True)
-            level.scroll(scrollRight=True)
+        if c == ord('p'):
+            terminalConstants.GAME_SHOW_FPS = not terminalConstants.GAME_SHOW_FPS
         elif c == ord('q'):
             break
         # update
